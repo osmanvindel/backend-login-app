@@ -1,0 +1,152 @@
+<?php
+require_once '../service/UserService.php';
+header("Content-Type: application/json; charset=UTF-8");
+
+$userService = new UserService();
+
+$httpMethod = $_SERVER['REQUEST_METHOD'];   //Obtener el metodo HTTP (GET, POST, PUT, DELETE)
+$pathRequest = $_SERVER['PATH_INFO'];       //Obtener la ruta de la peticion (Ejemplo -> /users)
+
+//Ruta base: /src/controller/UserController.php
+//Server a la escucha de cualquier peticion: php -S 0.0.0.0:3000
+
+/*
+    Autenticar usuario  
+    -Endpoint: /login    
+    -Metodo: POST
+*/
+if($httpMethod == 'POST' && $pathRequest == '/login') {
+    //Obtener los datos enviados en el cuerpo de la peticion
+    $data = json_decode(file_get_contents('php://input'), true); 
+
+    //JSON vacio
+    if(validateJSON($data)) {
+        header('Content-Type: application/json');
+        http_response_code(400);   
+        echo json_encode([
+            'success: ' => false, 
+            'message' => 'No se han enviado datos']);
+        exit();
+    }  
+
+    //Algun campo vacio
+    if(empty($data['email']) || empty($data['password'])) {
+        header('Content-Type: application/json');
+        http_response_code(400);   
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Los campos email y password son obligatorios']);
+        exit();
+    }
+
+    //Validar email
+    if(!validateEmail($data['email'])) { 
+        header('Content-Type: application/json');
+        http_response_code(400);   
+        echo json_encode([
+            'success' => false, 
+            'message' => 'El email no es valido']);
+        exit();
+    }
+
+    //Autenticar usuario 
+    $result = $userService->userAuth($data['email'], $data['password']);
+    
+    //Usuario no existe
+    if(!$result) {
+        header('Content-Type: application/json');
+        http_response_code(404);   
+        echo json_encode([
+            'success' => false,
+            'message' => 'Credenciales incorrectas o usuario no existe'
+        ]);
+        exit();
+    }
+
+    //Login exitoso
+    header('Content-Type: application/json');
+    http_response_code(200);   
+    echo json_encode([
+        'success' => true, 
+        'message' => 'Bienvenido'
+    ]); 
+}
+
+/*
+    Crear usuario  
+    -Endpoint: /user    
+    -Metodo: POST
+*/
+if($httpMethod == 'POST' && $pathRequest == '/signup') {
+    //Obtener los datos enviados en el cuerpo de la peticion
+    $data = json_decode(file_get_contents('php://input'), true); 
+
+    //JSON vacio
+    if(validateJSON($data)) {
+        http_response_code(400);   
+        echo json_encode(["error" => "No se han enviado datos"]);
+        exit(); 
+    }   
+
+    //Campos vacios
+    if(empty($data['name']) || empty($data['email']) || empty($data['password'])) {
+        header('Content-Type: application/json');
+        http_response_code(400);   
+        echo json_encode([
+            'success' => false, 
+            'message' => 'Los campos son obligatorios']);
+        exit();
+    }
+
+    //Validar nombre
+    // if(!validateUserName($data['name'])) {
+    //     header('Content-Type: application/json');
+    //     http_response_code(400);   
+    //     echo json_encode([
+    //         'success' => false, 
+    //         'message' => 'El usuario solo puede contener caracteres o simbolos especiales']);
+    //     exit();
+    // }
+
+    //Validar email
+    if(!validateEmail($data['email'])) { 
+        header('Content-Type: application/json');
+        http_response_code(400);   
+        echo json_encode([
+            'success' => false, 
+            'message' => 'El email no es valido']);
+        exit();
+    }
+
+    $user = new User(null, $data['name'], $data['email'], $data['password']);
+    $result = $userService->addUser($user);
+
+    if(!$result) {
+        http_response_code(400);   
+        echo json_encode([
+            'success' => false, 
+            "message" => "No se pudo crear el usuario"
+        ]);
+        exit();
+    }
+
+    echo json_encode([
+        'success' => true, 
+        'message' => 'Rgistrado correctamente'
+    ]);
+}
+
+//Validaciones
+
+function validateJSON($data): bool {
+    return empty($data);
+}
+
+function validateUserName($name) {
+    return preg_match("^[a-zA-Z0-9._-]{3,16}$", $name);
+}
+
+function validateEmail($email): bool {
+    return filter_var($email, FILTER_VALIDATE_EMAIL);
+}
+?>

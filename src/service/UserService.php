@@ -15,6 +15,9 @@ class UserService {
     //Autenticar usuario
     public function userAuth($email, $password): bool {       
         if(!$this->userRepository->exists($email)) return false;
+
+        //Verificar si el usuario no esta bloqueado
+        if($this->userRepository->isBlocked($email)) return false;
         
         //Contiena la contraseña encriptada asociada al email evaluado previamente
         $encriptedPassword = $this->userRepository->getUserPassword($email);
@@ -42,6 +45,26 @@ class UserService {
         return $this->userRepository->insertUser($user);
 
         return false;
+    }
+
+    public function blockUser($email): bool {
+        $result =  $this->userRepository->exists($email);
+
+        if($result) return $this->userRepository->blockUser($email);
+
+        return false;
+    }
+
+    public function UnblockUser($email): bool {
+        $result =  $this->userRepository->exists($email);
+
+        if($result) return $this->userRepository->UnblockUser($email);
+
+        return false;
+    }
+
+    public function auditar($usuario, $evento, $fecha): bool {
+        return $this->userRepository->auditar($usuario, $evento, $fecha);
     }
 }
 

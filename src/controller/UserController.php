@@ -136,6 +136,88 @@ if($httpMethod == 'POST' && $pathRequest == '/signup') {
     ]);
 }
 
+/*
+    Validar usuario  
+    -Endpoint: /block    
+    -Metodo: POST
+*/
+if($httpMethod == 'POST' && $pathRequest == '/block') {
+    $data = json_decode(file_get_contents('php://input'), true); 
+
+    if(!validateJSON($data)) {
+        $result = $userService->blockUser($data['email']);
+        if(!$result) {
+            http_response_code(400);   
+            echo json_encode([
+                'success' => false, 
+                "message" => "Correo de usuario a bloquear no valido"
+            ]);
+            exit();
+        }
+        echo json_encode([
+            'success' => true, 
+            'message' => 'Usuario bloqueado'
+        ]);
+    } 
+}
+
+/*
+    Validar usuario  
+    -Endpoint: /unblock    
+    -Metodo: POST
+*/
+if($httpMethod == 'POST' && $pathRequest == '/unblock') {
+    $data = json_decode(file_get_contents('php://input'), true); 
+
+    if(!validateJSON($data)) {
+        $result = $userService->UnblockUser($data['email']);
+        if(!$result) {
+            http_response_code(400);   
+            echo json_encode([
+                'success' => false, 
+                "message" => "Correo de usuario a desbloquear no valido"
+            ]);
+            exit();
+        }
+        echo json_encode([
+            'success' => true, 
+            'message' => 'Usuario desbloqueado'
+        ]);
+    } 
+}
+
+/*
+    Validar usuario  
+    -Endpoint: /auditar    
+    -Metodo: POST
+*/
+if($httpMethod == 'POST' && $pathRequest == '/auditar') {
+    $data = json_decode(file_get_contents('php://input'), true); 
+
+    if(!validateJSON($data)) {
+
+        $fecha = $data['fecha'];
+        $usuario = $data['usuario'];
+        $evento = $data['evento'];
+
+        $result = $userService->auditar($usuario, $evento, $fecha);
+
+        if(!$result) {
+            http_response_code(400);   
+            echo json_encode([
+                'success' => false, 
+                "message" => "Ocurrio un error al auditar"
+            ]);
+            exit();
+        }
+        echo json_encode([
+            'success' => true, 
+            'message' => 'Auditoria registrada'
+        ]);
+    } 
+}
+
+
 //Validaciones
 
 function validateJSON($data): bool {

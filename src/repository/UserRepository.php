@@ -76,5 +76,54 @@ class UserRepository {
         return $password;   
     }
 
+    public function blockUser($email) {
+        global $conn;
+        $sql = "UPDATE users SET isBlocked = 1 WHERE email = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $stmt->store_result();
+        if($stmt->affected_rows) {        
+            return true;
+        }
+        return false;
+    }
+
+    public function UnblockUser($email) {
+        global $conn;
+        $sql = "UPDATE users SET isBlocked = 0 WHERE email = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $stmt->store_result();
+        if($stmt->affected_rows) {        
+            return true;
+        }
+        return false;
+    }
+
+    public function isBlocked($email) {
+        global $conn;
+        $sql = "SELECT name FROM users WHERE email = ? AND isBlocked = 1";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $stmt->store_result();
+        if($stmt->num_rows > 0) return true;
+        
+        return false;
+    }
+
+    public function auditar($usuario, $evento, $fecha) {
+        global $conn;
+        $sql = "INSERT INTO bitacora_users (fecha, usuario, evento) VALUES (?,?,?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("sss", $fecha, $usuario, $evento);
+        $stmt->execute();
+        $stmt->store_result();
+        if($stmt->affected_rows) return true;
+        
+        return false;
+    }
 }
 ?>

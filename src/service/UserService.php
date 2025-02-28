@@ -19,7 +19,7 @@ class UserService {
         //Verificar si el usuario no esta bloqueado
         if($this->userRepository->isBlocked($email)) return false;
         
-        //Contiena la contraseña encriptada asociada al email evaluado previamente
+        //Contiene la contraseña encriptada asociada al email evaluado previamente
         $encriptedPassword = $this->userRepository->getUserPassword($email);
     
         //Verificar si la contraseña enviada coincide con la contraseña encriptada
@@ -55,16 +55,24 @@ class UserService {
         return false;
     }
 
-    public function UnblockUser($email): bool {
+    public function unblockUser($email): bool {
         $result =  $this->userRepository->exists($email);
 
-        if($result) return $this->userRepository->UnblockUser($email);
+        if($result) return $this->userRepository->unblockUser($email);
 
         return false;
     }
 
     public function auditar($usuario, $evento, $fecha): bool {
         return $this->userRepository->auditar($usuario, $evento, $fecha);
+    }
+
+    public function getUserId($email) {
+        return $this->userRepository->getUserId($email);
+    }
+
+    public function addLoginLog($user_id, $browser, $ip, $device, $description): bool {
+        return $this->userRepository->addLoginLog($user_id, $browser, $ip, $device, $description);
     }
 }
 

@@ -89,7 +89,7 @@ class UserRepository {
         return false;
     }
 
-    public function UnblockUser($email) {
+    public function unblockUser($email) {
         global $conn;
         $sql = "UPDATE users SET isBlocked = 0 WHERE email = ?";
         $stmt = $conn->prepare($sql);
@@ -124,6 +124,31 @@ class UserRepository {
         if($stmt->affected_rows) return true;
         
         return false;
+    }
+
+    public function addLoginLog($user_id, $browser, $ip, $device, $description) {
+        global $conn;
+        $sql = "INSERT INTO bitacora_login (user_id, browser, ip, device, `description`)
+                VALUES(?,?,?,?)";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param('issss',$user_id, $browser, $ip, $device, $description);
+        $stmt->execute();
+        $stmt->store_result();
+        if($stmt->affected_rows) return true;
+
+        return false;
+    }
+
+    public function getUserId($email) {
+        global $conn;
+        $sql = "SELECT id FROM users WHERE email = ? AND isBlocked = 0";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $stmt->bind_result($id);
+        if($stmt->fetch()) return $id;
+        
+        return 0;
     }
 }
 ?>

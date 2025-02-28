@@ -73,6 +73,65 @@ if($httpMethod == 'POST' && $pathRequest == '/login') {
 }
 
 /*
+    Bitacora login
+    -Endpoint: /user/bitacora-login
+    -Metodo: POST
+*/
+if($httpMethod == 'POST' && $pathRequest == '/user/bitacora-login') {
+    //Obtener los datos enviados en el cuerpo de la peticion
+    $data = json_decode(file_get_contents('php://input'), true); 
+
+    //JSON vacio
+    if(validateJSON($data)) {
+        header('Content-Type: application/json');
+        http_response_code(400);   
+        echo json_encode([
+            'success: ' => false, 
+            'message' => 'No se han enviado datos']);
+            exit();
+    } 
+
+    $user_id = $data['id'];
+    $browser = $data['browser'];
+    $ip = $data['ip'];
+    $device = $data['device'];
+    $description = $data['description'];
+
+    $result = $userService->addLoginLog($user_id, $browser, $ip, $device, $description);
+
+    if(!$result) {
+        header('Content-Type: application/json');
+        http_response_code(404);   
+        echo json_encode([
+            'success' => false,
+            'message' => 'Error en la peticion'
+        ]);
+        exit();
+    }
+
+    header('Content-Type: application/json');
+    http_response_code(200);   
+    echo json_encode([
+        'success' => true, 
+        'message' => 'Log registrado'
+    ]); 
+}
+
+/*
+    Obtener id usuario  
+    -Endpoint: /user/id/{email}
+    -Metodo: GET
+*/
+if ($httpMethod == 'GET' && preg_match('/^\/user\/id\/([^\/]+)$/', $pathRequest, $matches)) {
+    //Obtener los datos enviados en la URL de la peticion
+    $email = urldecode($matches[1]);
+
+    $id = $userService->getUserId($email);
+    
+    echo json_encode(['id' => $id]);
+}
+
+/*
     Crear usuario  
     -Endpoint: /user    
     -Metodo: POST
@@ -170,7 +229,7 @@ if($httpMethod == 'POST' && $pathRequest == '/unblock') {
     $data = json_decode(file_get_contents('php://input'), true); 
 
     if(!validateJSON($data)) {
-        $result = $userService->UnblockUser($data['email']);
+        $result = $userService->unblockUser($data['email']);
         if(!$result) {
             http_response_code(400);   
             echo json_encode([
@@ -187,7 +246,7 @@ if($httpMethod == 'POST' && $pathRequest == '/unblock') {
 }
 
 /*
-    Validar usuario  
+    Auditar login 
     -Endpoint: /auditar    
     -Metodo: POST
 */

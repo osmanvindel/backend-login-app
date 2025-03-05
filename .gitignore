@@ -1,0 +1,11 @@
+# Ignorar un archivo específico
+config.php
+
+# Ignorar una carpeta y todo su contenido
+/node_modules/
+
+# Ignorar todos los archivos `.log`
+*.log
+
+# Ignorar archivos `.env`
+.env

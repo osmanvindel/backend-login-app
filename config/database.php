@@ -1,12 +1,13 @@
 <?php
-    //Credenciales de conexion
-    $HOST = "localhost";
-    $USERNAME = "root";
-    $PASSWORD = "";
-    $DB = "usuarios_prog_movil2";
+    $config = include __DIR__ . '/config.php';
 
-    //Conexion a la base de datos
-    $conn = new mysqli($HOST, $USERNAME, $PASSWORD, $DB);
+    $conn = new mysqli(
+        $config['HOST'],
+        $config['USERNAME'],
+        $config['PASSWORD'],
+        $config['DB'],
+        $config['PORT']
+    );
 
     //Verificar la conexion
     if($conn->connect_error){

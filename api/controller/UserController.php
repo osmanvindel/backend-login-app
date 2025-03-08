@@ -7,7 +7,7 @@ $userService = new UserService();
 $httpMethod = $_SERVER['REQUEST_METHOD'];   //Obtener el metodo HTTP (GET, POST, PUT, DELETE)
 $pathRequest = $_SERVER['PATH_INFO'];       //Obtener la ruta de la peticion (Ejemplo -> /users)
 
-//Ruta base: /src/controller/UserController.php
+//Ruta base: /api/controller/UserController.php
 //Server a la escucha de cualquier peticion: php -S 0.0.0.0:3000
 
 /*
@@ -177,7 +177,7 @@ if($httpMethod == 'POST' && $pathRequest == '/signup') {
         exit();
     }
 
-    $user = new User(null, $data['name'], $data['email'], $data['password']);
+    $user = new User(null, $data['cedula'], $data['username'], $data['name'], $data['lastname'], $data['email'], $data['password']);
     $result = $userService->addUser($user);
 
     if(!$result) {

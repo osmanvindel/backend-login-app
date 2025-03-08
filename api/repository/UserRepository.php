@@ -28,14 +28,17 @@ class UserRepository {
 
     public function insertUser($user): bool {
         global $conn;
-        $sql = "INSERT INTO users (name, email, `password`) VALUES (?, ?, ?)";
+        $sql = "INSERT INTO users (cedula, username, `name`, lastname, email, `password`) VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
 
+        $cedula = $user->getCedula();
+        $username = $user->getUsername();
         $name = $user->getName();
+        $lastname = $user->getLastname();
         $email = $user->getEmail();
         $password = $user->getPassword();
 
-        $stmt->bind_param("sss", $name, $email, $password); 
+        $stmt->bind_param("ssssss", $cedula, $username, $name, $lastname, $email, $password); 
         $stmt->execute();
         //$stmt->store_result();
 
@@ -149,6 +152,11 @@ class UserRepository {
         if($stmt->fetch()) return $id;
         
         return 0;
+    }
+
+    public function getAll() {
+        global $conn;
+        //$sql = "SELECT "
     }
 }
 ?>

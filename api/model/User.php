@@ -1,15 +1,45 @@
 <?php
 class User implements JsonSerializable {
     private $id;
+    private $cedula;
+    private $username;
     private $name;
+    private $lastname;
     private $email;
     private $password;
 
-    public function __construct($id, $name, $email, $password) {
+    public function __construct($id, $cedula, $username, $name, $lastname, $email, $password) {
         $this->id = $id;
+        $this->cedula = $cedula;
+        $this->username = $username;
         $this->name = $name;
+        $this->lastname = $lastname;
         $this->email = $email;
         $this->password = $password;
+    }
+
+    public function getCedula() {
+        return $this->cedula;
+    }
+
+    public function setCedula($cedula) {
+        $this->cedula = $cedula;
+    }
+
+    public function getUsername() {
+        return $this->username;
+    }
+
+    public function setUsername($username) {
+        $this->username = $username;
+    }
+
+    public function getLastname() {
+        return $this->lastname;
+    }
+
+    public function setLastname($lastname) {
+        $this->lastname = $lastname;
     }
 
     public function getId() {

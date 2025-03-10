@@ -74,6 +74,31 @@ class UserService {
     public function addLoginLog($user_id, $browser, $ip, $device, $description): bool {
         return $this->userRepository->addLoginLog($user_id, $browser, $ip, $device, $description);
     }
+
+    public function loadModules($id) {
+        return $this->userRepository->loadModules($id);
+    }
+
+    public function getBitacoras($fecha) {
+        return $this->userRepository->getBitacoras($fecha);
+    }
+
+    public function getUserList() {
+        return $this->userRepository->getUserList();
+    }
+
+    public function deleteUser($email) {
+        return $this->userRepository->deleteUser($email);
+    }
+
+    public function updateUser($data) {
+        //Encriptar contraseña
+        $encriptedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
+        //Reasignar contraseña encriptada
+        $data['password'] = $encriptedPassword;
+
+        return $this->userRepository->updateUser($data);
+    }
 }
 
 ?>

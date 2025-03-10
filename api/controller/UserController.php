@@ -91,7 +91,7 @@ if($httpMethod == 'POST' && $pathRequest == '/user/bitacora-login') {
             exit();
     } 
 
-    $user_id = $data['id'];
+    $user_id = $data['user_id'];
     $browser = $data['browser'];
     $ip = $data['ip'];
     $device = $data['device'];
@@ -196,15 +196,17 @@ if($httpMethod == 'POST' && $pathRequest == '/signup') {
 }
 
 /*
-    Validar usuario  
+    Bloquear usuario  
     -Endpoint: /block    
     -Metodo: POST
 */
 if($httpMethod == 'POST' && $pathRequest == '/block') {
     $data = json_decode(file_get_contents('php://input'), true); 
 
+    //echo "Data recibida en controller " .$data;
+
     if(!validateJSON($data)) {
-        $result = $userService->blockUser($data['email']);
+        $result = $userService->blockUser($data);
         if(!$result) {
             http_response_code(400);   
             echo json_encode([
@@ -276,6 +278,123 @@ if($httpMethod == 'POST' && $pathRequest == '/auditar') {
     } 
 }
 
+/*
+    Obtener Modulos Usuario
+    -Endpoint: /user/{id}/module
+    -Metodo: GET
+*/
+if ($httpMethod == 'GET' && preg_match("/^\/user\/(\d+)\/module$/", $pathRequest, $matches)) {
+    // Obtener el ID del usuario desde la URL
+    $id = (int) $matches[1];
+
+    try {
+        // Cargar los módulos del usuario
+        $modulos = $userService->loadModules($id);
+
+        // Verificar si se encontraron módulos
+        if (empty($modulos)) {
+            http_response_code(404);
+            echo json_encode(["error" => "No se encontraron módulos para el usuario con ID $id"]);
+            exit;
+        }
+
+        // Devolver la respuesta en JSON
+        header('Content-Type: application/json');
+        echo json_encode($modulos);
+    } catch (Exception $e) {
+        // Manejo de errores en caso de fallo en la base de datos o servicio
+        http_response_code(500);
+        echo json_encode(["error" => "Error interno del servidor", "detalle" => $e->getMessage()]);
+        exit;
+    }
+}
+
+/*
+    Obtener Bitacoras
+    -Endpoint: /bitacoras/{fecha}
+    -Metodo: GET
+*/
+if ($httpMethod == 'GET' && preg_match("/^\/bitacora\/(\d{4}-\d{2}-\d{2})$/", $pathRequest, $matches)) {
+    // Obtener el ID del usuario desde la URL
+    $fecha =  $matches[1];
+    //echo 'Fecha recibida: ' .$fecha;
+
+    $bitacoras = $userService->getBitacoras($fecha);
+
+    echo json_encode($bitacoras);
+}
+
+/*
+    Obtener Lista de Usuarios
+    -Endpoint: /user-list
+    -Metodo: GET
+*/
+if ($httpMethod == 'GET' && $pathRequest == '/user-list') {
+    $userList = $userService->getUserList();
+    echo json_encode($userList);
+}
+
+/*
+    Eliminar (soft delete) Usuario  
+    -Endpoint: /block    
+    -Metodo: POST
+*/
+if($httpMethod == 'POST' && $pathRequest == '/delete') {
+    $data = json_decode(file_get_contents('php://input'), true); 
+
+    //echo "Data recibida en controller " .$data;
+
+    if(!validateJSON($data)) {
+        $result = $userService->deleteUser($data);
+        if(!$result) {
+            http_response_code(400);   
+            echo json_encode([
+                'success' => false, 
+                "message" => "Correo de usuario a eliminar no valido"
+            ]);
+            exit();
+        }
+        echo json_encode([
+            'success' => true, 
+            'message' => 'Usuario eliminado'
+        ]);
+    } 
+}
+
+/*
+    Actualizar Usuario  
+    -Endpoint: /user/update    
+    -Metodo: POST
+*/
+if ($httpMethod == 'POST' && $pathRequest == '/user/update') {
+    $data = json_decode(file_get_contents('php://input'), true);
+
+    var_dump($data);
+
+    if (validateJSON($data) || empty($data['id'])) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            "message" => "Datos inválidos o ID de usuario no proporcionado"
+        ]);
+        exit();
+    }
+
+    $result = $userService->updateUser($data);
+    if (!$result) {
+        http_response_code(400);
+        echo json_encode([
+            'success' => false,
+            "message" => "No se pudo actualizar el usuario"
+        ]);
+        exit();
+    }
+
+    echo json_encode([
+        'success' => true,
+        'message' => 'Usuario actualizado correctamente'
+    ]);
+}
 
 //Validaciones
 

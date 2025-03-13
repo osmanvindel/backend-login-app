@@ -171,13 +171,14 @@ class UserRepository {
         return $filas; // Devuelve un array con los datos
     }
 
-    public function loadModules($id) {
+    public function loadModulesByUser($id) {
         global $conn;
         $sql = "SELECT m.id, m.name, m.module_actionType 
                 FROM modules m
                 JOIN access_module am ON m.id = am.module_id
+                AND am.hasAccess = 1                
                 JOIN users u ON am.user_id = u.id
-                WHERE u.id = ?;";
+                WHERE u.id = ?";
         
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $id);
@@ -188,6 +189,7 @@ class UserRepository {
 
         return $modulos;
     }
+        
 
     public function getBitacoras($fecha) {
         global $conn;
@@ -249,5 +251,79 @@ class UserRepository {
         
         return $stmt->affected_rows > 0;
     }
+
+    public function getModules() {
+        global $conn;
+        $sql = "SELECT id, screenName,`description` FROM modules WHERE isActive = 1;";
+        $stmt = $conn->prepare($sql);        
+        $stmt->execute();
+        
+        $result = $stmt->get_result(); // Obtener los resultados
+        $filas = [];
+    
+        while ($fila = $result->fetch_assoc()) {
+            $filas[] = $fila;
+        }
+    
+        return $filas; // Devuelve un array con los datos
+    }
+
+    public function grantAccess($id, $modules) {
+        global $conn;
+    
+        foreach ($modules as $moduleId) {
+            $hasAccess = $this->userHasModule($id, $moduleId);
+    
+            if ($hasAccess === null) {
+                // Si no existe el registro, lo insertamos
+                $sql = "INSERT INTO access_module (module_id, user_id, hasAccess) VALUES (?, ?, 1)";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("ii", $moduleId, $id);
+                $stmt->execute();
+            } elseif ($hasAccess == 0) {
+                // Si existe pero está inhabilitado, lo actualizamos
+                $sql = "UPDATE access_module SET hasAccess = 1 WHERE user_id = ? AND module_id = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("ii", $id, $moduleId);
+                $stmt->execute();
+            }
+        }
+    
+        return true;
+    }
+
+    public function denyAccess($id, $modules) {
+        global $conn;
+    
+        foreach ($modules as $moduleId) {
+            $hasAccess = $this->userHasModule($id, $moduleId);
+    
+            if ($hasAccess === 1) {
+                // Si el usuario ya tiene acceso (hasAccess = 1), lo desactivamos (hasAccess = 0)
+                $sql = "UPDATE access_module SET hasAccess = 0 WHERE user_id = ? AND module_id = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("ii", $id, $moduleId);
+                $stmt->execute();
+            }
+        }
+    
+        return true;
+    }
+
+    private function userHasModule($user_id, $module_id) {   
+        global $conn;
+        $sql = "SELECT hasAccess FROM access_module WHERE module_id = ? AND user_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("ii", $module_id, $user_id);
+        $stmt->execute();
+        $stmt->bind_result($hasAccess);
+        
+        if ($stmt->fetch()) {
+            return $hasAccess; // Retorna el valor de hasAccess (0 o 1)
+        }
+        
+        return null; // No existe el registro
+    }
+        
 }
 ?>

@@ -75,8 +75,8 @@ class UserService {
         return $this->userRepository->addLoginLog($user_id, $browser, $ip, $device, $description);
     }
 
-    public function loadModules($id) {
-        return $this->userRepository->loadModules($id);
+    public function loadModulesByUser($id) {
+        return $this->userRepository->loadModulesByUser($id);
     }
 
     public function getBitacoras($fecha) {
@@ -98,6 +98,18 @@ class UserService {
         $data['password'] = $encriptedPassword;
 
         return $this->userRepository->updateUser($data);
+    }
+
+    public function getModules() {
+        return $this->userRepository->getModules();
+    }
+
+    public function grantUserAccess($id, $modules) {
+        return $this->userRepository->grantAccess($id, $modules);
+    }
+
+    public function denyUserAccess($id, $modules) {
+        return $this->userRepository->denyAccess($id, $modules);
     }
 }
 

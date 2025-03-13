@@ -289,7 +289,7 @@ if ($httpMethod == 'GET' && preg_match("/^\/user\/(\d+)\/module$/", $pathRequest
 
     try {
         // Cargar los módulos del usuario
-        $modulos = $userService->loadModules($id);
+        $modulos = $userService->loadModulesByUser($id);
 
         // Verificar si se encontraron módulos
         if (empty($modulos)) {
@@ -301,6 +301,7 @@ if ($httpMethod == 'GET' && preg_match("/^\/user\/(\d+)\/module$/", $pathRequest
         // Devolver la respuesta en JSON
         header('Content-Type: application/json');
         echo json_encode($modulos);
+        
     } catch (Exception $e) {
         // Manejo de errores en caso de fallo en la base de datos o servicio
         http_response_code(500);
@@ -394,6 +395,66 @@ if ($httpMethod == 'POST' && $pathRequest == '/user/update') {
         'success' => true,
         'message' => 'Usuario actualizado correctamente'
     ]);
+}
+
+/*
+    Obtener Modulos
+    -Endpoint: /modules
+    -Metodo: GET
+*/
+if ($httpMethod == 'GET' && $pathRequest == '/modules') {
+    $modules = $userService->getModules();
+    echo json_encode($modules);
+}
+
+/*
+    Otorgar acceso a módulos
+    -Endpoint: /user/grant-access   
+    -Metodo: GET
+*/
+if($httpMethod == 'POST' && $pathRequest == '/grant-access') { 
+    $data = json_decode(file_get_contents("php://input"), true);
+
+// Validar si se recibieron los datos correctamente
+if (!isset($data['id']) || !isset($data['modules'])) {
+    echo json_encode(["error" => "Faltan parámetros"]);
+    exit;
+}
+
+// Extraer el ID y los módulos
+$id = intval($data['id']);
+//$modules = array_keys($data['modules']); // Convertir las claves del objeto en array
+$modules = array_map('intval', array_keys($data['modules']));
+
+// Llamar a la función grantAccess
+$result = $userService->grantUserAccess($id, $modules);
+
+echo json_encode(["success" => $result, "message" => "Acceso(s) otorgado(s)"]);
+}
+
+/*
+    Denegar acceso a módulos
+    -Endpoint: /user/deny-access   
+    -Metodo: GET
+*/
+if($httpMethod == 'POST' && $pathRequest == '/deny-access') { 
+    $data = json_decode(file_get_contents("php://input"), true);
+
+// Validar si se recibieron los datos correctamente
+if (!isset($data['id']) || !isset($data['modules'])) {
+    echo json_encode(["error" => "Faltan parámetros"]);
+    exit;
+}
+
+// Extraer el ID y los módulos
+$id = intval($data['id']);
+//$modules = array_keys($data['modules']); // Convertir las claves del objeto en array
+$modules = array_map('intval', array_keys($data['modules']));
+
+// Llamar a la función grantAccess
+$result = $userService->denyUserAccess($id, $modules);
+
+echo json_encode(["success" => $result, "message" => "Acceso(s) denegado(s)"]);
 }
 
 //Validaciones

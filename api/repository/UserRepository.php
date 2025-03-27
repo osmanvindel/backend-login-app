@@ -39,7 +39,7 @@ class UserRepository {
         $password = $user->getPassword();
         $photo = $user->getPhoto();
 
-        $stmt->bind_param("ssssss", $cedula, $username, $name, $lastname, $email, $password, $photo); 
+        $stmt->bind_param("sssssss", $cedula, $username, $name, $lastname, $email, $password, $photo); 
         $stmt->execute();
         //$stmt->store_result();
 

@@ -177,7 +177,16 @@ if($httpMethod == 'POST' && $pathRequest == '/signup') {
         exit();
     }
 
-    $user = new User(null, $data['cedula'], $data['username'], $data['name'], $data['lastname'], $data['email'], $data['password']);
+    $user = new User(
+        null, 
+        $data['cedula'], 
+        $data['username'], 
+        $data['name'], 
+        $data['lastname'], 
+        $data['email'], 
+        $data['password'], 
+        $data['photo']);
+        
     $result = $userService->addUser($user);
 
     if(!$result) {

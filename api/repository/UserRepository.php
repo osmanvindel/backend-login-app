@@ -28,7 +28,7 @@ class UserRepository {
 
     public function insertUser($user): bool {
         global $conn;
-        $sql = "INSERT INTO users (cedula, username, `name`, lastname, email, `password`) VALUES (?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO users (cedula, username, `name`, lastname, email, `password`, photo) VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
 
         $cedula = $user->getCedula();
@@ -37,8 +37,9 @@ class UserRepository {
         $lastname = $user->getLastname();
         $email = $user->getEmail();
         $password = $user->getPassword();
+        $photo = $user->getPhoto();
 
-        $stmt->bind_param("ssssss", $cedula, $username, $name, $lastname, $email, $password); 
+        $stmt->bind_param("ssssss", $cedula, $username, $name, $lastname, $email, $password, $photo); 
         $stmt->execute();
         //$stmt->store_result();
 

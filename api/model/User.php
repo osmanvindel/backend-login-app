@@ -7,8 +7,9 @@ class User implements JsonSerializable {
     private $lastname;
     private $email;
     private $password;
+    private $photo;
 
-    public function __construct($id, $cedula, $username, $name, $lastname, $email, $password) {
+    public function __construct($id, $cedula, $username, $name, $lastname, $email, $password, $photo) {
         $this->id = $id;
         $this->cedula = $cedula;
         $this->username = $username;
@@ -16,6 +17,7 @@ class User implements JsonSerializable {
         $this->lastname = $lastname;
         $this->email = $email;
         $this->password = $password;
+        $this->photo = $photo;
     }
 
     public function getCedula() {
@@ -74,13 +76,22 @@ class User implements JsonSerializable {
         $this->password = $password;
     }
 
+    public function getPhoto() {
+        return $this->photo;
+    }
+    
+    public function setPhoto($photo) {
+        $this->photo = $photo;
+    }
+
     //Definir la manera en que se construye el JSON
     public function jsonSerialize(): mixed {
         return [
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
-            'password' => $this->password
+            'password' => $this->password,
+            'photo' => $this->photo
         ];
     }
 }

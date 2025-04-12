@@ -50,7 +50,8 @@ if($httpMethod == 'POST' && $pathRequest == '/customer') {
         $data['fullName'], 
         $data['email'], 
         $data['phoneNumber'], 
-        $data['address']
+        $data['address'],
+        $data['photo_url']
     );
         
     $result = $customerService->insertCustomer($customer);

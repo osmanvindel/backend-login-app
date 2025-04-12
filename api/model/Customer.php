@@ -6,13 +6,15 @@ class Customer {
     private $email;
     private $phone;
     private $address;
+    private $photo_url;
 
-    public function __construct($dni, $name, $email, $phone, $address){
+    public function __construct($dni, $name, $email, $phone, $address, $photo_url){
         $this->dni = $dni;
         $this->name = $name;
         $this->email = $email;
         $this->phone = $phone;
         $this->address = $address;
+        $this->photo_url = $photo_url;
     }
 
     public function getName(){
@@ -55,6 +57,13 @@ class Customer {
         $this->address = $address;
     }
 
+    public function getPhotoUrl(){        
+        return $this->photo_url;
+    }
+
+    public function setPhotoUrl($photo_url){       
+        $this->photo_url = $photo_url;
+    }
     
     public function jsonSerialize(): mixed {
         return [
@@ -62,7 +71,8 @@ class Customer {
             'dni' => $this->dni,
             'email' => $this->email,
             'phone' => $this->phone,
-            'address' => $this->address
+            'address' => $this->address,
+            'photo_url' => $this->photo_url
         ];
     }
 

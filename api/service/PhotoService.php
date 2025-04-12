@@ -33,16 +33,14 @@ class PhotoService
 
     public function savePhoto($file) {
         // Directorio donde se guardarán las imágenes
-        $uploadDir = '../photos/';
-        // if (!is_dir($uploadDir)) {
-        //     mkdir($uploadDir, 0777, true); // Crear el directorio si no existe
-        // }
+        $uploadDir = __DIR__ . '/../../photos/';
 
         // Generar un nombre único para evitar colisiones
         $newFileName = uniqid() . '_' . basename($file['name']);
 
         // Mover el archivo al directorio de destino
         $destPath = $uploadDir . $newFileName;
+        //echo $destPath;
         if (move_uploaded_file($file['tmp_name'], $destPath)) {
             return $newFileName; // Devolver el nombre del archivo guardado
         } else {

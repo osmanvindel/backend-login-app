@@ -7,7 +7,7 @@ class CustomerRepository {
 
     public function insertCustomer($customer) {
         global $conn;
-        $sql = "INSERT INTO customers( dni, name, email, phone, address) VALUES (?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO customers( dni, name, email, phone, address, photo_url) VALUES (?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
 
         $dni = $customer->getDni();
@@ -15,8 +15,9 @@ class CustomerRepository {
         $email = $customer->getEmail();
         $phone = $customer->getPhone();
         $address = $customer->getAddress();
+        $photo_url = $customer->getPhotoUrl();
 
-        $stmt->bind_param('sssss', $dni, $name, $email, $phone, $address); 
+        $stmt->bind_param('ssssss', $dni, $name, $email, $phone, $address, $photo_url); 
         $stmt->execute();
         //$stmt->store_result();
 
